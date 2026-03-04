@@ -1,0 +1,62 @@
+name: 🔄 Auto-Commit and Push Changes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'README*.md'
+      - 'requirements.txt'
+      - 'Dockerfile*'
+      - 'docker-compose.yml'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Custom commit message'
+        required: false
+        default: 'chore: Auto-commit via GitHub Actions'
+
+jobs:
+  auto-commit-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure git
+        run: |
+          git config --local user.name "GitHub Actions Bot"
+          git config --local user.email "actions@github.com"
+          
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet
+          if [ $? -eq 1 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git add -A
+          git commit -m "${{ github.event.inputs.message || 'chore: Auto-commit via GitHub Actions' }}"
+          git push origin main
+          
+      - name: Log commit details
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          echo "✅ Changes committed and pushed successfully"
+          git log -1 --oneline
+          git log -1 --format="%an <%ae>"
