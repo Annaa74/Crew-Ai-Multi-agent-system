@@ -111,13 +111,14 @@ with tab1:
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        job_id = st.text_input("Job ID", value="JOB-001")
-        job_title = st.text_input("Job Title", value="Senior Software Engineer")
+        job_id = st.text_input("Job ID", value="JOB-001", key="tab1_job_id")
+        job_title = st.text_input("Job Title", value="Senior Software Engineer", key="tab1_job_title")
     
     with col2:
         job_text = st.text_area(
             "Job Description",
             height=250,
+            key="tab1_job_text",
             value="""Looking for a Senior Software Engineer with 5+ years of experience.
             
 Required Skills:
@@ -213,13 +214,14 @@ with tab2:
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        resume_id = st.text_input("Resume ID", value="RES-001")
-        candidate_name = st.text_input("Candidate Name", value="John Doe")
+        resume_id = st.text_input("Resume ID", value="RES-001", key="tab2_resume_id")
+        candidate_name = st.text_input("Candidate Name", value="John Doe", key="tab2_candidate_name")
     
     with col2:
         resume_text = st.text_area(
             "Resume Content",
             height=250,
+            key="tab2_resume_text",
             value="""JOHN DOE | john@example.com | +1-234-567-8900
 
 SUMMARY
@@ -321,15 +323,15 @@ with tab3:
     
     with col1:
         st.subheader("📝 Job Details")
-        job_id = st.text_input("Job ID", value="JOB-001", key="hiring_job_id")
-        job_title = st.text_input("Job Title", value="Senior Software Engineer", key="hiring_job_title")
-        job_text = st.text_area("Job Description", height=200, key="hiring_job_text")
+        job_id_tab3 = st.text_input("Job ID", value="JOB-001", key="tab3_job_id")
+        job_title_tab3 = st.text_input("Job Title", value="Senior Software Engineer", key="tab3_job_title")
+        job_text_tab3 = st.text_area("Job Description", height=200, key="tab3_job_text")
     
     with col2:
         st.subheader("📄 Resume Details")
-        resume_id = st.text_input("Resume ID", value="RES-001", key="hiring_resume_id")
-        candidate_name = st.text_input("Candidate Name", value="John Doe", key="hiring_candidate_name")
-        resume_text = st.text_area("Resume Content", height=200, key="hiring_resume_text")
+        resume_id_tab3 = st.text_input("Resume ID", value="RES-001", key="tab3_resume_id")
+        candidate_name_tab3 = st.text_input("Candidate Name", value="John Doe", key="tab3_candidate_name")
+        resume_text_tab3 = st.text_area("Resume Content", height=200, key="tab3_resume_text")
     
     st.divider()
     
@@ -340,14 +342,14 @@ with tab3:
                     f"{st.session_state.api_url}/api/v1/hiring/analyze",
                     json={
                         "job": {
-                            "job_id": job_id,
-                            "job_title": job_title,
-                            "job_text": job_text
+                            "job_id": job_id_tab3,
+                            "job_title": job_title_tab3,
+                            "job_text": job_text_tab3
                         },
                         "resume": {
-                            "resume_id": resume_id,
-                            "candidate_name": candidate_name,
-                            "resume_text": resume_text
+                            "resume_id": resume_id_tab3,
+                            "candidate_name": candidate_name_tab3,
+                            "resume_text": resume_text_tab3
                         }
                     },
                     timeout=30
@@ -373,9 +375,9 @@ with tab3:
                     with col2:
                         st.metric("Recommendation", recommendation)
                     with col3:
-                        st.metric("Job", job_title)
+                        st.metric("Job", job_title_tab3)
                     with col4:
-                        st.metric("Candidate", candidate_name)
+                        st.metric("Candidate", candidate_name_tab3)
                     
                     st.divider()
                     
@@ -412,8 +414,8 @@ with tab3:
                     
                     st.session_state.analysis_history.append({
                         "type": "Full Hiring Analysis",
-                        "job_id": job_id,
-                        "resume_id": resume_id,
+                        "job_id": job_id_tab3,
+                        "resume_id": resume_id_tab3,
                         "timestamp": datetime.now().isoformat(),
                         "match_score": match_score,
                         "recommendation": recommendation
@@ -431,28 +433,30 @@ with tab4:
     st.header("📊 Vector Database Search & Matching")
     st.markdown("Find matching resumes for jobs or jobs for resumes")
     
-    search_type = st.radio("Search Type", ["Find Resumes for Job", "Find Jobs for Resume"])
+    search_type = st.radio("Search Type", ["Find Resumes for Job", "Find Jobs for Resume"], key="tab4_search_type")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
         if search_type == "Find Resumes for Job":
-            job_id = st.text_input("Job ID", value="JOB-001")
+            job_id_tab4 = st.text_input("Job ID", value="JOB-001", key="tab4_job_id")
             search_text = st.text_area(
                 "Job Description",
                 height=150,
+                key="tab4_search_text_job",
                 value="Senior Software Engineer with 5+ years experience in Python, JavaScript, and cloud platforms"
             )
         else:
-            resume_id = st.text_input("Resume ID", value="RES-001")
+            resume_id_tab4 = st.text_input("Resume ID", value="RES-001", key="tab4_resume_id")
             search_text = st.text_area(
                 "Resume Content",
                 height=150,
+                key="tab4_search_text_resume",
                 value="John Doe - Senior Software Engineer with 7 years experience. Skills: Python, Java, React, AWS"
             )
     
     with col2:
-        top_k = st.slider("Top K Results", min_value=1, max_value=10, value=5)
+        top_k = st.slider("Top K Results", min_value=1, max_value=10, value=5, key="tab4_top_k")
     
     st.divider()
     
@@ -463,7 +467,7 @@ with tab4:
                     response = requests.post(
                         f"{st.session_state.api_url}/api/v1/match/job-to-resumes",
                         json={
-                            "job_id": job_id,
+                            "job_id": job_id_tab4,
                             "job_text": search_text,
                             "top_k": top_k
                         },
@@ -473,7 +477,7 @@ with tab4:
                     response = requests.post(
                         f"{st.session_state.api_url}/api/v1/match/resume-to-jobs",
                         json={
-                            "resume_id": resume_id,
+                            "resume_id": resume_id_tab4,
                             "resume_text": search_text,
                             "top_k": top_k
                         },
